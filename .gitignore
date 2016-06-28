@@ -2,6 +2,10 @@
 ink
 .depend
 
+# Build directories
+build/
+bin/
+
 # Swap files
 *.swp
 
