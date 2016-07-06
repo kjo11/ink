@@ -17,11 +17,11 @@
  *                            FORWARD DECLARATIONS                            *
  ******************************************************************************/
 // Make backups for a single configuration
-static int make_backups_sub(const backup_config *conf);
+static int make_backups_sub(const backup_config *conf, FILE *output);
 
 // Get folder name for a backup
-static char* get_folder_name(const backup_config *conf,
-                           const time_t curr_unix_time);
+static char *get_folder_name(const backup_config *conf,
+                             const time_t curr_unix_time);
 
 /******************************************************************************
  *                                DEFINITIONS                                 *
@@ -34,8 +34,7 @@ static char* get_folder_name(const backup_config *conf,
 int make_backups(const backup_config *conf, FILE *output) {
   // Loop through list of backup configuratons
   while (conf != NULL) {
-    fprintf(output, "Making backup %s...\n", conf->name);
-    if (make_backups_sub(conf) != EXIT_SUCCESS) {
+    if (make_backups_sub(conf, output) != EXIT_SUCCESS) {
       fprintf(stderr, "Error creating backup %s. Exiting...\n", conf->name);
       return EXIT_FAILURE;
     }
@@ -48,8 +47,8 @@ int make_backups(const backup_config *conf, FILE *output) {
 //                                                           make_backups_sub
 // -----------------------------------------------------------------------------
 // Make backups for a single configuration
-static int make_backups_sub(const backup_config *conf) {
-  char *folder_name = NULL;
+static int make_backups_sub(const backup_config *conf, FILE *output) {
+  fprintf(output, "Making backup %s...\n", conf->name);
 
   // Get current time
   time_t curr_unix_time;
@@ -57,13 +56,16 @@ static int make_backups_sub(const backup_config *conf) {
   curr_unix_time = time(NULL);
 
   // Get folder name
+  char *folder_name = NULL;
   if ((folder_name = get_folder_name(conf, curr_unix_time)) == NULL) {
     return EXIT_FAILURE;
   }
 
   rsync_args args_struct;
   DO_OR_DIE(get_rsync_args_from_config(&args_struct, conf, folder_name));
-  print_rsync_args(&args_struct);
+
+  fprintf(output, "Command to run: ");
+  print_rsync_args(&args_struct, output);
 
   printf("Running some shit.\n");
 
@@ -77,9 +79,9 @@ static int make_backups_sub(const backup_config *conf) {
 //                                                            get_folder_name
 // -----------------------------------------------------------------------------
 // Return the folder name for a given backup
-static char* get_folder_name(const backup_config *conf,
-                           const time_t curr_unix_time) {
-  char* folder_name;
+static char *get_folder_name(const backup_config *conf,
+                             const time_t curr_unix_time) {
+  char *folder_name;
   struct tm curr_time = *localtime(&curr_unix_time);
   char date_string[MAX_DATE_SIZE + 1];
   date_string[0] = '\0';
@@ -101,4 +103,3 @@ static char* get_folder_name(const backup_config *conf,
 
   return folder_name;
 }
-

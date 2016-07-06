@@ -1,6 +1,5 @@
 #include "rsync_args.h"
 
-#include <stdio.h>
 #include <unistd.h>
 
 #include "global.h"
@@ -181,11 +180,11 @@ static void init_rsync_args_to_null(rsync_args *args) {
 // -----------------------------------------------------------------------------
 //                                                           print_rsync_args
 // -----------------------------------------------------------------------------
-void print_rsync_args(const rsync_args *args) {
+void print_rsync_args(const rsync_args *args, FILE *output) {
   char *args_array[args->n_arguments + 1];
   convert_rsync_args_to_array(args_array, args);
   for (int i = 0; i < args->n_arguments; i++) {
-    printf("%s ", args_array[i]);
+    fprintf(output, "%s ", args_array[i]);
   }
-  printf("\n\n");
+  fprintf(output, "\n\n");
 }
