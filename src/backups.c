@@ -1,10 +1,10 @@
 #include "backups.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <err.h>
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "global.h"
@@ -26,8 +26,8 @@
     if ((x) != EXIT_SUCCESS) return EXIT_FAILURE; \
   } while (0);
 
-#define NNULL_OR_DIE(x)                    \
-  do {                                     \
+#define NNULL_OR_DIE(x)                   \
+  do {                                    \
     if ((x) == NULL) return EXIT_FAILURE; \
   } while (0);
 
@@ -59,6 +59,9 @@ static int get_folder_name(char *folder_name, const backup_config *conf,
 static int get_rsync_args_from_config(rsync_args *args,
                                       const backup_config *conf,
                                       const char *folder_name);
+
+// Free memory malloc'd by rsync_args
+static void free_rsync_args(rsync_args *args);
 
 /******************************************************************************
  *                                DEFINITIONS                                 *
@@ -142,22 +145,23 @@ static int get_rsync_args_from_config(rsync_args *arg_struct,
 
   // Program name
   NNULL_OR_DIE(arg_struct->program_name =
-                allocate_and_copy_string(RSYNC_PROGRAM_NAME));
+                   allocate_and_copy_string(RSYNC_PROGRAM_NAME));
   arg_struct->n_arguments++;
 
   // Short options
   NNULL_OR_DIE(arg_struct->short_opts =
-                allocate_and_copy_string(RSYNC_SHORT_OPTS));
+                   allocate_and_copy_string(RSYNC_SHORT_OPTS));
   arg_struct->n_arguments++;
 
   // Info options
-  NNULL_OR_DIE(arg_struct->info_opts = allocate_and_copy_string(RSYNC_INFO_OPTS));
+  NNULL_OR_DIE(arg_struct->info_opts =
+                   allocate_and_copy_string(RSYNC_INFO_OPTS));
   arg_struct->n_arguments++;
 
   // Exclude file -- null if not given
   if (conf->exclude_file != NULL) {
     NNULL_OR_DIE(arg_struct->excludes = concat_and_copy_strings2(
-                  RSYNC_EXCLUDE_PREFIX, conf->exclude_file));
+                     RSYNC_EXCLUDE_PREFIX, conf->exclude_file));
     arg_struct->n_arguments++;
   }
 
@@ -186,7 +190,7 @@ static int get_rsync_args_from_config(rsync_args *arg_struct,
       last_backup_name[n_chars] = '\0';
 
       NNULL_OR_DIE(arg_struct->link_backup_dest = concat_and_copy_strings3(
-                    RSYNC_BACKUPDIR_PREFIX, "/", last_backup_name));
+                       RSYNC_BACKUPDIR_PREFIX, "/", last_backup_name));
       arg_struct->n_arguments++;
     }
   }
@@ -194,7 +198,7 @@ static int get_rsync_args_from_config(rsync_args *arg_struct,
   // Log file
   if (conf->log_file != NULL) {
     NNULL_OR_DIE(arg_struct->log_file = concat_and_copy_strings2(
-                  RSYNC_LOGFILE_PREFIX, conf->log_file));
+                     RSYNC_LOGFILE_PREFIX, conf->log_file));
     arg_struct->n_arguments++;
   }
 
@@ -217,3 +221,16 @@ static int get_rsync_args_from_config(rsync_args *arg_struct,
   return EXIT_SUCCESS;
 }
 
+// -----------------------------------------------------------------------------
+//                           free_rsync_args
+// -----------------------------------------------------------------------------
+static void free_rsync_args(rsync_args *args) {
+  free(args->program_name);
+  free(args->short_opts);
+  free(args->info_opts);
+  free(args->excludes);
+  free(args->link_backup_dest);
+  free(args->log_file);
+  free(args->destination_dir);
+  free(args->source_dir);
+}
