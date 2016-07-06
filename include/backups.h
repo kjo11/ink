@@ -2,7 +2,6 @@
 #define BACKUPS_HEADER_DEF_
 
 #define _GNU_SOURCE 1
-#define EXIT_FAILURE -1
 
 #include "user-config.h"
 #include <stdio.h>

@@ -44,7 +44,7 @@ static inline backup_config get_default_conf() {
   conf.name = NULL;
   conf.mount_point = "/mnt/backups";
   conf.backup_folder = "/mnt/backups";
-  conf.exclude_file = "";
+  conf.exclude_file = NULL;
   conf.log_file = "/var/log/backups/home.log";
   conf.err_file = "/var/log/backups/home.err";
   conf.to_backup = "/";

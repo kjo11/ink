@@ -23,11 +23,12 @@ LDFLAGS += $(foreach library,$(LIBRARIES),-l$(library))
 
 LINK.c := $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)
 
--include $(DEPS)
 
 .PHONY: all clean cleaner
 
 all: $(TARGET)
+
+-include $(DEPS)
 
 clean: 
 	@rm -rf $(OBJDIR)

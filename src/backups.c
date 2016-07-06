@@ -28,7 +28,7 @@ static char* get_folder_name(const backup_config *conf,
  ******************************************************************************/
 
 // -----------------------------------------------------------------------------
-//                               make_backups
+//                                                               make_backups
 // -----------------------------------------------------------------------------
 // Check and make new backups if required
 int make_backups(const backup_config *conf, FILE *output) {
@@ -45,7 +45,7 @@ int make_backups(const backup_config *conf, FILE *output) {
 }
 
 // -----------------------------------------------------------------------------
-//                             make_backups_sub
+//                                                           make_backups_sub
 // -----------------------------------------------------------------------------
 // Make backups for a single configuration
 static int make_backups_sub(const backup_config *conf) {
@@ -62,13 +62,19 @@ static int make_backups_sub(const backup_config *conf) {
   }
 
   rsync_args args_struct;
-  get_rsync_args_from_config(&args_struct, conf, folder_name);
+  DO_OR_DIE(get_rsync_args_from_config(&args_struct, conf, folder_name));
+  print_rsync_args(&args_struct);
+
+  printf("Running some shit.\n");
+
+  free_rsync_args(&args_struct);
+  free(folder_name);
 
   return EXIT_SUCCESS;
 }
 
 // -----------------------------------------------------------------------------
-//                              get_folder_name
+//                                                            get_folder_name
 // -----------------------------------------------------------------------------
 // Return the folder name for a given backup
 static char* get_folder_name(const backup_config *conf,
