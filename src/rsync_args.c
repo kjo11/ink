@@ -93,8 +93,8 @@ int get_rsync_args_from_config(rsync_args *arg_struct,
   // Link or backup destination
   if ((conf->type == INCREMENTAL) && (conf->link_name != NULL)) {
     NNULL_OR_DIE(
-        arg_struct->link_backup_dest = concat_and_copy_strings4(
-            RSYNC_LINK_PREFIX, conf->backup_folder, "/", conf->link_name));
+        arg_struct->link_backup_dest = concat_and_copy_strings2(
+            RSYNC_LINK_PREFIX, conf->link_name));
     arg_struct->n_arguments++;
   }
 
