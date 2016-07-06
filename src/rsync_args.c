@@ -8,7 +8,7 @@
 #define RSYNC_MAX_ARGS 10
 
 #define RSYNC_PROGRAM_NAME "rsync"
-#define RSYNC_SHORT_OPTS "-a"
+#define RSYNC_SHORT_OPTS "-anv"
 #define RSYNC_INFO_OPTS "--info=progress2"
 #define RSYNC_EXCLUDE_PREFIX "--exclude-from="
 #define RSYNC_LINK_PREFIX "--link-dest="

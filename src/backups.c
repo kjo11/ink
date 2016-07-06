@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "global.h"
@@ -68,6 +69,33 @@ static int make_backups_sub(const backup_config *conf, FILE *output) {
   print_rsync_args(&args_struct, output);
 
   printf("Running some shit.\n");
+  char *args_array[args_struct.n_arguments + 1];
+  convert_rsync_args_to_array(args_array, &args_struct);
+
+  // Fork new process and run rsync
+  pid_t pid;
+  int statval;
+  if ((pid = fork()) == -1) {
+    free_rsync_args(&args_struct);
+    fprintf(stderr, "Error forking rsync process using function fork.\n");
+  }
+  if (pid == 0) {
+    execvp("rsync", args_array);
+    free_rsync_args(&args_struct);
+    fprintf(stderr, "Error running rsync using function execvp.\n");
+    return EXIT_FAILURE;
+  } else {
+    // wait(NULL);
+    waitpid(pid, &statval, WUNTRACED
+#ifdef WCONTINUED /* Not all implementations support this */
+                               | WCONTINUED
+#endif
+            );
+    if (WIFEXITED(statval))
+      printf("Child's exit code %d\n", WEXITSTATUS(statval));
+    else
+      printf("Child did not terminate with exit\n");
+  }
 
   free_rsync_args(&args_struct);
   free(folder_name);
