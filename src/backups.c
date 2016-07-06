@@ -20,7 +20,7 @@
 static int make_backups_sub(const backup_config *conf);
 
 // Get folder name for a backup
-static int get_folder_name(char *folder_name, const backup_config *conf,
+static char* get_folder_name(const backup_config *conf,
                            const time_t curr_unix_time);
 
 /******************************************************************************
@@ -57,7 +57,7 @@ static int make_backups_sub(const backup_config *conf) {
   curr_unix_time = time(NULL);
 
   // Get folder name
-  if (get_folder_name(folder_name, conf, curr_unix_time) != EXIT_SUCCESS) {
+  if ((folder_name = get_folder_name(conf, curr_unix_time)) == NULL) {
     return EXIT_FAILURE;
   }
 
@@ -71,8 +71,9 @@ static int make_backups_sub(const backup_config *conf) {
 //                              get_folder_name
 // -----------------------------------------------------------------------------
 // Return the folder name for a given backup
-static int get_folder_name(char *folder_name, const backup_config *conf,
+static char* get_folder_name(const backup_config *conf,
                            const time_t curr_unix_time) {
+  char* folder_name;
   struct tm curr_time = *localtime(&curr_unix_time);
   char date_string[MAX_DATE_SIZE + 1];
   date_string[0] = '\0';
@@ -81,17 +82,17 @@ static int get_folder_name(char *folder_name, const backup_config *conf,
   size_t date_size =
       strftime(date_string, MAX_DATE_SIZE, conf->date_format, &curr_time);
   if (date_size == MAX_DATE_SIZE) {
-    return EXIT_FAILURE;
+    return NULL;
   }
 
   // Allocate and copy folder prefix
   const char *strings[] = {conf->folder_prefix, date_string};
   if ((folder_name = concat_and_copy_strings(strings, 2)) == NULL) {
-    return EXIT_FAILURE;
+    return NULL;
   }
 
   printf("%s\n", folder_name);
 
-  return EXIT_SUCCESS;
+  return folder_name;
 }
 
